@@ -42,7 +42,7 @@ int main() {
         //Temp and Humidity sensor 
         Tempstatus = TempHumid.readData(); // Read the status of DHT11 humidity sensor 
         if (Tempstatus != DHT11::OK) { // If not okay 
-            pc.printf("Device not ready\r\n"); 
+            pc.printf("Temp not ready\r\n"); 
         }
         else { 
             pc.printf("T = %2.1f\n\r",TempHumid.readTemperature());
@@ -68,7 +68,6 @@ int main() {
         time_t seconds = time(NULL);  
         printf ("Time as a basic string = %s\r\n", ctime(&seconds)); 
         char buffer [32];
-        strftime(buffer, 32, "%I:%M %p\n\r", localtime(&seconds));
         Hour=((seconds-1774854000)/3600)%24;   //Hour of the day
         Day=((seconds-1774854000)/86400)%7;  //Day of the week
         if(LightSwitch.read()==1){
@@ -94,7 +93,7 @@ int main() {
         }
         //Water level sensor 
         depth=DepthSensor.read(); // Read the sensor values. 
-        pc.printf("Water ADC%d level is %d\n\r", DepthSensor.read(), depth); 
+        pc.printf("Water ADC%d level is %d\r\n", DepthSensor.read(), depth); 
         if(depth>lowdepth){
             //todo implement alarm
             continue;
