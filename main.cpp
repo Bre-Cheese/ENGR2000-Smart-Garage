@@ -2,8 +2,8 @@
 #include "DHT11.h" 
 DigitalOut Leds(LED1);      //Lights
 DigitalIn LightSwitch(p12); //Light switch
-AnalogOut Fan(p21);         //Fan motor
-AnalogOut Door(p22);        //Door motor
+PwmOut Fan(p21);         //Fan motor
+PwmOut Door(p22);        //Door motor
 DHT11 TempHumid(p16);        //Temperature and humidity sensor 
 DigitalIn PIR(p6);          //IR sensor 
 Serial device(p9, p10);     //Bluetooth device. 9tx, 10rx
