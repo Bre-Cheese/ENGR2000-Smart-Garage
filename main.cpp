@@ -1,12 +1,12 @@
 #include "mbed.h" 
 #include "DHT11.h" 
 DigitalOut Leds(LED1);      //Lights
-DigitalIn LightSwitch(p13); //Light switch
-AnalogOut Fan(p11);         //Fan motor
-AnalogOut Door(p12);        //Door motor
-DHT11 TempHumid(p7);        //Temperature and humidity sensor 
-DigitalIn PIR(p5);          //IR sensor 
-Serial device(p9, p10);     //Bluetooth device 
+DigitalIn LightSwitch(p12); //Light switch
+AnalogOut Fan(p21);         //Fan motor
+AnalogOut Door(p22);        //Door motor
+DHT11 TempHumid(p16);        //Temperature and humidity sensor 
+DigitalIn PIR(p6);          //IR sensor 
+Serial device(p9, p10);     //Bluetooth device. 9tx, 10rx
 Serial pc(USBTX,USBRX);     //PC connection
 const int lowdepth = 480;
 int depth =0;
@@ -71,6 +71,9 @@ int main() {
         strftime(buffer, 32, "%I:%M %p\n\r", localtime(&seconds));
         Hour=((seconds-1774854000)/3600)%24;   //Hour of the day
         Day=((seconds-1774854000)/86400)%7;  //Day of the week
+        if(LightSwitch.read()==1){
+            Leds=1;
+        }
         if(LightSwitch.read()==0){  //Checks if lights are not manually on
             if(Day>5){    //Check if Day is a weekend
                 if((Hour>16) || (Hour<8)){  //Check if Hour is not during work hours
