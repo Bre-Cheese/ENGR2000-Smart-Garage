@@ -12,9 +12,9 @@ Serial device(p9, p10);     //Bluetooth device. 9tx, 10rx
 Serial pc(USBTX,USBRX);     //PC connection
 int status;
 const int lowdepth = 480;
-int depth =0;
+int depth=0;
 int Rest=0;                 //Wait time for IR sensor
-int Placeholder=1774882800;
+int Placeholder=1775372400;
 float Hour=0;
 float Day=0;
 
@@ -28,6 +28,34 @@ int main() {
     Door=0;
 
     while(1) {
+        //RTC
+        time_t seconds = time(NULL);  
+        printf ("Time as a basic string = %s\r\n", ctime(&seconds)); 
+        Hour=((Placeholder-1774854000)/3600)%24;   //Hour of the day
+        Day=((Placeholder-1774854000)/86400)%7;  //Day of the week
+        pc.printf("Hour = %f. Day = %f \r\n",Hour, Day);
+        if(LightSwitch.read()==1){
+            Leds=1;
+        }
+        if(LightSwitch.read()==0){  //Checks if lights are not manually on
+            if(Day>=5){    //Check if Day is a weekend
+                if((Hour>16) || (Hour<8)){  //Check if Hour is not during work hours
+                    //If all of the abovve are true then turn on motion sensors.
+                    //IR sensor 
+                    if (PIR){       //If it senses movement turn on lights and reset rest counter
+                        Leds=1;
+                        Rest=0;
+                        //Alert!
+                    }
+                    else if (!PIR){ //If it doesn't sense movement inscrease rest counter
+                        Rest++;
+                    }
+                    if (Rest==6){   //If no movement is detected for 6s and is not work hours, turn off lights
+                        Leds=0;
+                    }
+                }
+            }
+        }
         //Bluetooth device 
         if(device.readable()) { // Get state for bluetooth. 
             BTstate=device.getc();
@@ -39,6 +67,7 @@ int main() {
         switch (BTstate){
             case 'D':
             pc.printf("Door Opened \r\n");
+            device.printf("Door Opened\r\n");
             break;
             case 'd':
             pc.printf("Door Opened \r\n");
@@ -66,32 +95,6 @@ int main() {
         //     Door=0;
         //     //Send info to device that door is closed
         // }
-        //RTC
-        time_t seconds = time(NULL);  
-        printf ("Time as a basic string = %s\r\n", ctime(&seconds)); 
-        Hour=((seconds-1774854000)/3600)%24;   //Hour of the day
-        Day=((seconds-1774854000)/86400)%8;  //Day of the week
-        if(LightSwitch.read()==1){
-            Leds=1;
-        }
-        if(LightSwitch.read()==0){  //Checks if lights are not manually on
-            if(Day>5){    //Check if Day is a weekend
-                if((Hour>16) || (Hour<8)){  //Check if Hour is not during work hours
-                    //If all of the abovve are true then turn on motion sensors.
-                    //IR sensor 
-                    if (PIR){       //If it senses movement turn on lights and reset rest counter
-                        Leds=1;
-                        Rest=0;
-                    }
-                    else if (!PIR){ //If it doesn't sense movement inscrease rest counter
-                        Rest++;
-                    }
-                    if (Rest==6){   //If no movement is detected for 6s and is not work hours, turn off lights
-                        Leds=0;
-                    }
-                }
-            }
-        }
         //Water level sensor 
         depth=DepthSensor.read(); // Read the sensor values. 
         pc.printf("Water level is %d\r\n", DepthSensor.read(), depth); 
@@ -100,6 +103,6 @@ int main() {
             continue;
         }
         BTstate='S';
-        wait(10);
+        wait(2);
     } 
 }
