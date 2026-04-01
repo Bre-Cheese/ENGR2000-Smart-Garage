@@ -74,7 +74,7 @@ int main() {
             Leds=1;
         }
         if(LightSwitch.read()==0){  //Checks if lights are not manually on
-            if(Day>5){    //Check if Day is a weekend
+            if(Day>=5){    //Check if Day is a weekend
                 if((Hour>16) || (Hour<8)){  //Check if Hour is not during work hours
                     //If all of the abovve are true then turn on motion sensors.
                     //IR sensor 
