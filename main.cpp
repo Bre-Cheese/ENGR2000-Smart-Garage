@@ -87,6 +87,24 @@ int main() {
                 Fan=0;
                 pc.printf("Manual Fan Off.\r\n");
                 break;
+                //Check sensors and status'
+                // case 'C':
+                // device.printf(TempHumid.readTemperature());
+                // device.printf(TempHumid.readHumidity());
+                // device.printf(DepthSensor.read());
+                // if((Day<5) && (Hour>=8) && (Hour<=16)){
+                //     device.printf("Working");
+                // }
+                // else if((Day>=5) || (Hour<8) || (Hour>16)){
+                //     device.printf("Not Working");
+                // }
+                // if (Lights==1){
+                //     device.printf("Activity");
+                // }
+                // else if (Lights==0){
+                //     device.printf("No Activity");
+                // }
+                // break;
             }
         }
         else{
