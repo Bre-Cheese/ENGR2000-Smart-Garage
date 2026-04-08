@@ -1,7 +1,7 @@
 #include "mbed.h" 
 #include "DHT11.h" 
 #include <ctime>
-DigitalOut Lights(LED1);    //Lights
+BusOut Lights(LED1, LED2, LED3, LED4);    //Lights
 DigitalOut AlertLight(p7);  //Red LED
 DigitalOut Buzzer(p8);      //Buzzer
 PwmOut Fan(p21);            //Fan motor
@@ -111,14 +111,14 @@ int main() {
              pc.printf("BlueTooth device not readable \r\n");
         }
         if(LightSwitch.read()==1){      //Turns on lights and factory
-            Lights=1;
+            Lights=15;
             //Automatic turn off
             if(Day>=5){    //Check if Day is a weekend
                 if((Hour<8) || (Hour>16)){  //Check if Hour is not during work hours
                     //If all of the above are true then turn on motion sensors.
                     //IR sensor 
                     if (PIR){       //If it senses movement turn on lights and sound alarm
-                        Lights=1;
+                        Lights=15;
                         Rest=0;
                         if (Alarm==1){  //If alarm is enabled sound alarm
                             pc.printf("Motion detected after hours!\r\n");
@@ -142,7 +142,7 @@ int main() {
         else if(LightSwitch.read()==0){  //Checks if lights are not manually on
             Lights=0;
             if (PIR){       //If it senses movement turn on lights and sound alarm
-                Lights=1;
+                Lights=15;
                 Rest=0;
                 if (Alarm==1){  //If alarm is enabled sound alarm
                     pc.printf("Motion detected after hours!\r\n");
@@ -161,7 +161,7 @@ int main() {
                 }
             }
         }
-        if (Lights==1){     //Allows factory functions if lights is on
+        if (Lights==15){     //Allows factory functions if lights is on
             //Temp / Humidity sensor and automatic Fan
             status = TempHumid.readData(); // Read the status of sensor
             if (status != DHT11::OK) { // If not okay
