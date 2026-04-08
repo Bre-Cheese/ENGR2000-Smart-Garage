@@ -14,12 +14,11 @@ Serial device(p9, p10);     //Bluetooth device. 9tx, 10rx
 Serial pc(USBTX,USBRX);     //PC connection
 int Alarm=1;                //Alarm system. Can be turned off with Bluetooth
 int status;                 //Temp / Humidity sensor status
-const int lowdepth = 480;   //Maximum water depth
-int Depth=0;                //Depth sensor
+float Depth=0;                //Depth sensor
 int Auto=1;                 //Automatic fan state
 int Rest=6;                 //Wait time for IR sensor
 int StartTime=1774854000;   //Mon Mar 30 2026 00:00:00 GMT-0700 (Pacific Daylight Time)
-int CurrentTime=1775372400; //
+int CurrentTime=1776059376; //
 float Hour=0;               //Work week hours used for automatic shutoff
 float Day=0;                //Work week days used for automatic shutoff
 
@@ -30,6 +29,8 @@ int main() {
     char BTstate = 'S';
     Fan=0;
     Door=0;
+    AlertLight=0;
+    Buzzer=0;
 
     while(1) {
         //RTC
@@ -118,7 +119,6 @@ int main() {
                     //If all of the above are true then turn on motion sensors.
                     //IR sensor 
                     if (PIR){       //If it senses movement turn on lights and sound alarm
-                        Lights=15;
                         Rest=0;
                         if (Alarm==1){  //If alarm is enabled sound alarm
                             pc.printf("Motion detected after hours!\r\n");
@@ -132,7 +132,6 @@ int main() {
                     else if (!PIR){ //If it doesn't sense movement inscrease rest counter
                         Rest++;
                         if (Rest>=6){   //If no movement is detected for 6s, turn off lights
-                        Lights=0;
                         Rest=6;
                         }
                     }
@@ -142,7 +141,6 @@ int main() {
         else if(LightSwitch.read()==0){  //Checks if lights are not manually on
             Lights=0;
             if (PIR){       //If it senses movement turn on lights and sound alarm
-                Lights=15;
                 Rest=0;
                 if (Alarm==1){  //If alarm is enabled sound alarm
                     pc.printf("Motion detected after hours!\r\n");
@@ -156,7 +154,6 @@ int main() {
             else if (!PIR){ //If it doesn't sense movement inscrease rest counter
                 Rest++;
                 if (Rest>=6){   //If no movement is detected for 6s, turn off lights
-                Lights=0;
                 Rest=6;
                 }
             }
@@ -170,33 +167,33 @@ int main() {
             else { // If the status is okay, read the values
                 pc.printf("Temperature: %d C\r\n", TempHumid.readTemperature());
                 pc.printf("Humidity: %d %%\r\n", TempHumid.readHumidity());
-                if (TempHumid.readTemperature()>25){    //Turns on fan if temperature is above 25C
+                if (TempHumid.readTemperature()>30){    //Turns on fan if temperature is above 25C
                     pc.printf("High Temperature!\r\n");
                     if (Auto==1){
                         Fan=1;
                     }
                 }
-                else if (TempHumid.readTemperature()<=25){
+                else if (TempHumid.readTemperature()<=30){
                     if (Auto==1){
                         Fan=0;
                     }
                 }
-                if (TempHumid.readHumidity()>25){    //Turns on fan if humidity is above 25%
+                if (TempHumid.readHumidity()>30){    //Turns on fan if humidity is above 25%
                     pc.printf("High Humidity!\r\n");
                     if (Auto==1){
                         Fan=1;
                     }
                 }
-                else if (TempHumid.readHumidity()<=25){
+                else if (TempHumid.readHumidity()<=30){
                     if (Auto==1){
                         Fan=0;
                     }
                 }
             }
             //Water level sensor 
-            Depth=DepthSensor.read(); // Read the sensor values. 
-            pc.printf("Water level is %d\r\n", Depth); 
-            if(Depth>lowdepth){
+            Depth=DepthSensor; // Read the sensor values. 
+            pc.printf("Water level is %f\r\n", Depth); 
+            if(Depth>0.1){
                 pc.printf("Water leak!\r\n");
                 AlertLight=1;
                 Buzzer=1;
