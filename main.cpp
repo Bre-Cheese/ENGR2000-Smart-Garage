@@ -13,7 +13,7 @@ DHT11 TempHumid(p16);       //Temperature and humidity sensor
 AnalogIn DepthSensor(p15);  //Depth Sensor
 Serial device(p9, p10);     //Bluetooth device. 9tx, 10rx
 Serial pc(USBTX,USBRX);     //PC connection
-int Alarm=1;                //Alarm system. Can be turned off with Bluetooth
+int Alarm=0;                //Alarm system. Can be turned off with Bluetooth
 int status;                 //Temp / Humidity sensor status
 float Depth=0;                //Depth sensor
 int Auto=1;                 //Automatic fan state
@@ -22,7 +22,6 @@ int StartTime=1774854000;   //Mon Mar 30 2026 00:00:00 GMT-0700 (Pacific Dayligh
 int CurrentTime=1776059376; //
 float Hour;               //Work week hours used for automatic shutoff
 float Day;                //Work week days used for automatic shutoff
-int potpin=0;
 int val;
 
 int main() { 
@@ -36,11 +35,6 @@ int main() {
     Buzzer=0;
 
     while(1) {
-        // for (int pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
-        //     // in steps of 1 degree
-        //     Door.write(pos);              // tell servo to go to position in variable 'pos'
-        //     wait_ms(15);                       // waits 2s for the servo to reach the position
-        // }
         //RTC
         time_t seconds = time(NULL);  
         printf ("Time as a basic string = %s\r\n", ctime(&seconds)); 
@@ -133,9 +127,7 @@ int main() {
                     if (PIR){       //If it senses movement turn on lights and sound alarm
                         Rest=0;
                         if (Alarm==1){  //If alarm is enabled sound alarm
-                            if (Rest==0){
-                                pc.printf("Motion detected after hours!\r\n");
-                            }
+                            pc.printf("Motion detected after hours!\r\n");
                             AlertLight=1;
                             Buzzer=1;
                             wait(1);
@@ -157,9 +149,7 @@ int main() {
             if (PIR){       //If it senses movement turn on lights and sound alarm
                 Rest=0;
                 if (Alarm==1){  //If alarm is enabled sound alarm
-                    if (Rest==0){
-                        pc.printf("Motion detected after hours!\r\n");
-                    }
+                    pc.printf("Motion detected after hours!\r\n");
                     AlertLight=1;
                     Buzzer=1;
                     wait(1);
