@@ -1,11 +1,12 @@
 #include "mbed.h" 
+#include "Servo.h"
 #include "DHT11.h" 
 #include <ctime>
 BusOut Lights(LED1, LED2, LED3, LED4);    //Lights
 DigitalOut AlertLight(p7);  //Red LED
 DigitalOut Buzzer(p8);      //Buzzer
 PwmOut Fan(p21);            //Fan motor
-PwmOut Door(p22);           //Door motor
+Servo Door(p22);           //Door motor
 DigitalIn LightSwitch(p12); //Light switch
 DigitalIn PIR(p6);          //IR sensor
 DHT11 TempHumid(p16);       //Temperature and humidity sensor
@@ -19,8 +20,10 @@ int Auto=1;                 //Automatic fan state
 int Rest=6;                 //Wait time for IR sensor
 int StartTime=1774854000;   //Mon Mar 30 2026 00:00:00 GMT-0700 (Pacific Daylight Time)
 int CurrentTime=1776059376; //
-float Hour=0;               //Work week hours used for automatic shutoff
-float Day=0;                //Work week days used for automatic shutoff
+float Hour;               //Work week hours used for automatic shutoff
+float Day;                //Work week days used for automatic shutoff
+int potpin=0;
+int val;
 
 int main() { 
     pc.printf("starting \r\n"); 
@@ -33,6 +36,11 @@ int main() {
     Buzzer=0;
 
     while(1) {
+        // for (int pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+        //     // in steps of 1 degree
+        //     Door.write(pos);              // tell servo to go to position in variable 'pos'
+        //     wait_ms(15);                       // waits 2s for the servo to reach the position
+        // }
         //RTC
         time_t seconds = time(NULL);  
         printf ("Time as a basic string = %s\r\n", ctime(&seconds)); 
@@ -56,16 +64,20 @@ int main() {
                 break;
                 //Open door
                 case 'D':
-                Door=0.5;
-                wait(1);
-                Door=0;
+                for (int pos = 0; pos <= 180; pos += 1) { // goes from 0 degrees to 180 degrees
+                    // in steps of 1 degree
+                    Door.write(pos);              // tell servo to go to position in variable 'pos'
+                    wait_ms(2);                       // waits 2s for the servo to reach the position
+                }
                 pc.printf("Door Opened.\r\n");
                 break;
                 //Close door
                 case 'd':
-                Door=-0.5;
-                wait(1);
-                Door=0;
+                for (int pos = 180; pos >= 0; pos -= 1) { // goes from 0 degrees to 180 degrees
+                    // in steps of 1 degree
+                    Door.write(pos);              // tell servo to go to position in variable 'pos'
+                    wait_ms(2);                       // waits 15ms for the servo to reach the position
+                }
                 pc.printf("Door Closed.\r\n");
                 break;
                 //Turn automatic fanning on
@@ -121,7 +133,9 @@ int main() {
                     if (PIR){       //If it senses movement turn on lights and sound alarm
                         Rest=0;
                         if (Alarm==1){  //If alarm is enabled sound alarm
-                            pc.printf("Motion detected after hours!\r\n");
+                            if (Rest==0){
+                                pc.printf("Motion detected after hours!\r\n");
+                            }
                             AlertLight=1;
                             Buzzer=1;
                             wait(1);
@@ -143,7 +157,9 @@ int main() {
             if (PIR){       //If it senses movement turn on lights and sound alarm
                 Rest=0;
                 if (Alarm==1){  //If alarm is enabled sound alarm
-                    pc.printf("Motion detected after hours!\r\n");
+                    if (Rest==0){
+                        pc.printf("Motion detected after hours!\r\n");
+                    }
                     AlertLight=1;
                     Buzzer=1;
                     wait(1);
@@ -172,6 +188,7 @@ int main() {
                     if (Auto==1){
                         Fan=1;
                     }
+
                 }
                 else if (TempHumid.readTemperature()<=30){
                     if (Auto==1){
